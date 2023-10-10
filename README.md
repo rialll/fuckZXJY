@@ -17,7 +17,7 @@
 | phonetype          | vivo\|V1923A\|9            | 手机型号                                   |
 | longitude          | 121.544296                 | 经度                                       |
 | latitude           | 31.221592                  | 纬度                                       |
-| pushtoken          | d370a5446ab64c8b8b27e1c4f2b27fbd | 点击此处跳转获取[Pushplus推送](https://www.pushplus.plus/)                              |
+| pushtoken          | d370a5446ab64c8b8b27e1c4f2b27fbd | Pushplus+推送口令                              |
 | modify_coordinates | false/true                      | 是否随机修改坐标最后一位数                               |
 | enabled            | false/true                      | 是否启用                                   |
 | dToken             | 64c4854504814be08af900b0091bb0480d8a        | 设备标识符(随机生成字符串)                                 |
