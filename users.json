@@ -1,0 +1,38 @@
+[
+    {
+        "phone_number": "",
+        "password": "",
+        "address": "",
+        "phonetype": "",
+        "longitude": 121.544296,
+        "latitude": 31.221592,
+        "pushtoken": "",
+        "modify_coordinates": false,
+        "enabled": false,
+        "dToken": ""
+    },
+    {
+        "phone_number": "",
+        "password": "",
+        "address": "",
+        "phonetype": "",
+        "longitude": 116.093625,
+        "latitude": 35.676721,
+        "pushtoken": "",
+        "modify_coordinates": true,
+        "enabled": false,
+        "dToken": ""
+    },
+    {
+        "phone_number": "",
+        "password": "",
+        "address": "",
+        "phonetype": "",
+        "longitude": 116.093625,
+        "latitude": 35.676721,
+        "pushtoken": "",
+        "modify_coordinates": true,
+        "enabled": true,
+        "dToken": ""
+    }
+]
