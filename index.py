@@ -135,6 +135,8 @@ def login_request(phone_number, password, dToken,additional_text):
     return response_text
 
 def sign_in_request(uid, address, phonetype, probability, longitude, latitude, additional_text,modify_coordinates=False):
+    longitude = float(longitude)
+    latitude = float(latitude)
     # 如果需要修改坐标，则进行修改
     if modify_coordinates:
         longitude = round(longitude + random.uniform(-0.00001, 0.00001), 6)
