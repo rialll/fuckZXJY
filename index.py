@@ -20,7 +20,7 @@ def get_token():
     """
     获取 Token
     """
-    url = "https://sxbaapp.vae.ha.cn/interface/token.ashx"
+    url = "https://sxbaapp.zcj.jyt.henan.gov.cn/interface/token.ashx"
     headers = {
         'content-type': 'application/json;charset=UTF-8',
     }
@@ -127,7 +127,7 @@ def login_request(phone_number, password, dToken,additional_text):
     headers = generate_headers(sign, phone_number)
 
     # 请求地址
-    url = 'http://sxbaapp.vae.ha.cn/interface/relog.ashx'
+    url = 'http://sxbaapp.zcj.jyt.henan.gov.cn/interface/relog.ashx'
 
     # 发送请求
     response_text = send_request(url, 'POST', headers, data)
@@ -160,7 +160,7 @@ def sign_in_request(uid, address, phonetype, probability, longitude, latitude, a
     headers = generate_headers(sign, phonetype)
 
     # 请求地址
-    url = 'http://sxbaapp.vae.ha.cn/interface/clockindaily20220827.ashx'
+    url = 'http://sxbaapp.zcj.jyt.henan.gov.cn/interface/clockindaily20220827.ashx'
 
     # 发送请求
     response_text = send_request(url, 'POST', headers, data)
