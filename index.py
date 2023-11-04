@@ -1,6 +1,4 @@
-"""
-github：rialll
-"""
+
 
 import requests
 import hashlib
@@ -13,17 +11,14 @@ import random
 SECRET_KEY = 'Anything_2023'
 ADDITIONAL_TEXT = None
 DTYPE = 6
-def get_token():
-    global ADDITIONAL_TEXT
-    if ADDITIONAL_TEXT:
-        return ADDITIONAL_TEXT
-    """
-    获取 Token
-    """
-    url = "https://sxbaapp.zcj.jyt.henan.gov.cn/interface/token.ashx"
-    headers = {
-        'content-type': 'application/json;charset=UTF-8',
-    }
+
+def get_headerstoken(phone_number):
+    url = "https://sxbaapp.zcj.jyt.henan.gov.cn/api/getApitoken.ashx"
+
+    sign = calculate_sign("","YcT3mukklI+DN2PJrzJBmXMamUWtM7Ncsw7nb+oVadk=")
+
+    # 生成请求头
+    headers = generate_headers(sign, phone_number,"YcT3mukklI+DN2PJrzJBmXMamUWtM7Ncsw7nb+oVadk=")
 
     # 构建请求数据
 
@@ -31,7 +26,7 @@ def get_token():
     try:
         result = response.json()
         if result["code"] == 1001:
-            token = result["data"]["token"]
+            token = result["data"]["apitoken"]
             print("获取 Token 成功:", token)
             return token
         else:
@@ -40,7 +35,6 @@ def get_token():
     except json.JSONDecodeError:
         print("解析获取 Token 的响应时发生 JSON 解析错误")
         return ""
-
 
 def push_notification(phone_number,token, content,title="职校家园签到结果", template="html", channel="wechat"):
     push_url = "http://www.pushplus.plus/send"
@@ -75,14 +69,17 @@ def calculate_hmac_sha256(secret_key, message):
     hashed = hmac.new(key, message, hashlib.sha256)
     return hashed.hexdigest()
 
-def generate_headers(sign, phone_phonetype):
+def generate_headers(sign, phone_phonetype,headerstoken):
+    timestamp = int(time.time())
     return {
         'os': 'android',
         'phone': phone_phonetype,
-        'appversion': '56',
+        'appversion': '57',
         'sign': sign,
         'content-type': 'application/json;charset=UTF-8',
         'accept-encoding': 'gzip',
+        'timestamp': str(timestamp * 1000),
+        'token': headerstoken,
         'user-agent': 'okhttp/3.14.9'
     }
 
@@ -96,18 +93,16 @@ def send_request(url, method, headers, data):
 
     return response.text
 
-def calculate_sign(data, additional_text,secret_key=SECRET_KEY):
-
+def calculate_sign(data, token):
 
     # 将数据转换为 JSON 格式
-    json_data = json.dumps(data)
+
 
     # 将 JSON 数据与附加文本连接
-    combined_text = json_data + additional_text
-
+    combined_text =json.dumps(data) + token
+    print(combined_text)
     # 计算 HmacSHA256
-    return calculate_hmac_sha256(secret_key, combined_text)
-
+    return calculate_hmac_sha256('Anything_2023', combined_text)
 def login_request(phone_number, password, dToken,additional_text):
     # 将密码进行 MD5 加密
     encrypted_password = calculate_md5(password)
@@ -124,14 +119,12 @@ def login_request(phone_number, password, dToken,additional_text):
     sign = calculate_sign(data,additional_text)
 
     # 生成请求头
-    headers = generate_headers(sign, phone_number)
-
+    headers = generate_headers(sign, phone_number,additional_text)
     # 请求地址
-    url = 'http://sxbaapp.zcj.jyt.henan.gov.cn/interface/relog.ashx'
+    url = 'http://sxbaapp.zcj.jyt.henan.gov.cn/api/relog.ashx'
 
     # 发送请求
     response_text = send_request(url, 'POST', headers, data)
-
     return response_text
 
 def sign_in_request(uid, address, phonetype, probability, longitude, latitude, additional_text,modify_coordinates=False):
@@ -157,10 +150,10 @@ def sign_in_request(uid, address, phonetype, probability, longitude, latitude, a
     sign = calculate_sign(data,additional_text)
 
     # 生成请求头
-    headers = generate_headers(sign, phonetype)
+    headers = generate_headers(sign, phonetype,additional_text)
 
     # 请求地址
-    url = 'http://sxbaapp.zcj.jyt.henan.gov.cn/interface/clockindaily20220827.ashx'
+    url = 'http://sxbaapp.zcj.jyt.henan.gov.cn/api/clockindaily20220827.ashx'
 
     # 发送请求
     response_text = send_request(url, 'POST', headers, data)
@@ -170,21 +163,28 @@ def sign_in_request(uid, address, phonetype, probability, longitude, latitude, a
 
 def login_and_sign_in(phone_number, password, address, phonetype, longitude,latitude, dToken,pushtoken,modify_coordinates=False):
     # 登录
-    ADDITIONAL_TEXT = get_token()
-    if not ADDITIONAL_TEXT:
+    login_token = get_headerstoken(phonetype)
+    if not login_token:
         print("获取 Token 失败，无法继续操作")
         if pushtoken:
             token = pushtoken
             push_notification(phone_number, token, "错误,加密Token获取错误！")
         return
-    login_response = login_request(phone_number, password,dToken,ADDITIONAL_TEXT)
+    login_response = login_request(phone_number, password,dToken,login_token)
     try:
         login_result = json.loads(login_response)
         if login_result['code'] == 1001:
             # 登录成功
             uid = login_result['data']['uid']
             print("登录成功，UID:", uid)
-
+            ADDITIONAL_TEXT = login_result['data']['UserToken']
+            if not ADDITIONAL_TEXT:
+                print("获取 Token 失败，无法继续操作")
+                if pushtoken:
+                    token = pushtoken
+                    push_notification(phone_number, token, "错误,加密Token获取错误！")
+                return
+            print(ADDITIONAL_TEXT)
             # 从用户信息中获取经度和纬度
 
 
@@ -231,7 +231,6 @@ def login_and_sign_in(phone_number, password, address, phonetype, longitude,lati
             push_notification(phone_number, token, "处理登录响应时发生 JSON 解析错误")
 
 def main_handler(a,b):
-    print("项目地址：https://github.com/rialll/fuckZXJY")
     users_file_path = "users.json"
     users = load_users_from_json(users_file_path)
     for user in users:
